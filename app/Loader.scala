@@ -17,9 +17,12 @@ object Loader extends App {
     )
   )
 
-  println(persistence.Message.lastMessage.toString)
+  Session.create(
+    java.sql.DriverManager.getConnection(dbURL),
+    new PostgreSqlAdapter
+  ).bindToCurrentThread
 
-  val sinceID = 0
+  val sinceID = persistence.Message.lastMessage.rowid
   val url = s"$BASE_URL?p=$sinceID"
   val resp = Source.fromURL(url)("utf-8").mkString
   val messages = MessageParser.getLines(resp).map(MessageParser.parse(_).commitToDB())

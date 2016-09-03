@@ -51,14 +51,14 @@ object Message {
 
   def lastMessage: Message = from(Database.messagesTable) {
     message => select(message).orderBy(message.ts desc)
-  }.single
+  }.page(0, 1).head
   def allQ: Query[Message] = from(Database.messagesTable) { message => select(message) }
   def findAll(): List[Message] = inTransaction { allQ.toList }
   def create(message: Message) = try {
     inTransaction { Database.messagesTable.insert(message) }
   } catch {
     case e: PSQLException => Logger.warn(s"Message with id=${message.id} already exists.")
-    case e => Logger.error(s"PSQL Error --> $e")
+    case e: Throwable => Logger.error(s"PSQL Error --> $e")
   }
 
 }
