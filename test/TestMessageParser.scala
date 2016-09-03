@@ -7,26 +7,36 @@ class MessageParserTest extends Specification {
   "MesasgeParser" should {
     "split and filter lines" in {
       val lines = MessageParser.getLines(TestData.msg)
-      lines.length must equalTo(10)
+      lines.length must equalTo(11)
     }
 
     "ignore certain messages" in {
       var lines = MessageParser.getLines(TestData.msg)
 
-      MessageParser.isInvalid(lines.head, "553380") must equalTo(true)
+      MessageParser.isInvalid(lines.head, "553379") must equalTo(true)
 
-      MessageParser.isInvalid("too-short", "553380") must equalTo(true)
+      MessageParser.isInvalid("too-short", "553379") must equalTo(true)
 
-      MessageParser.isInvalid(lines(9), "553380") must equalTo(true)
+      MessageParser.isInvalid(lines(10), "553379") must equalTo(true)
 
-      MessageParser.isInvalid(lines(7), "553380") must equalTo(false)
+      MessageParser.isInvalid(lines(8), "553379") must equalTo(false)
 
-      MessageParser.isInvalid(lines(8), "553380") must equalTo(false)
+      MessageParser.isInvalid(lines(9), "553379") must equalTo(false)
     }
 
-    "parse messages" in {
+    "parse message with a dest field" in {
       val lines = MessageParser.getLines(TestData.msg)
       val m = MessageParser.parse(lines.head)
+      m._rowID must equalTo(553379)
+      m._when must equalTo(20160902175103L)
+      m._myCall must equalTo("N0DEC")
+      m._qsoStarted must equalTo(true)
+      m._dest must equalTo("destx")
+    }
+
+    "parse message" in {
+      val lines = MessageParser.getLines(TestData.msg)
+      val m = MessageParser.parse(lines(1))
       m._rowID must equalTo(553380)
       m._when must equalTo(20160902175105L)
       m._myCall must equalTo("IZ6FGP")
@@ -43,7 +53,7 @@ class MessageParserTest extends Specification {
 
     "toString constructs correct JSON representation" in {
         val lines = MessageParser.getLines(TestData.msg)
-        val m = MessageParser.parse(lines.head)
+        val m = MessageParser.parse(lines(1))
         m.toString must equalTo("""{
                                   |"rowID":553380,
                                   |"when":20160902175105,
@@ -64,6 +74,7 @@ class MessageParserTest extends Specification {
 
 object TestData {
   val msg ="""
+            |553379:20160902175103N0DEC___WW6BAY_B0WW6BAY_G/WW6BAYB000000D___01___destx
             |553380:20160902175105IZ6FGP__IR6UCI_B1IR6UCI_GCQCQCQ__000000AUTO00________0.3s_S:53%_E:0.0%___
             |553381:20160902175109AF9W____WA7VC__B0WA7VC__GCQCQCQ__000000ID5100REF029_ABob_North_Bend,_WA__
             |553382:20160902175111AF9W____WA7VC__B1WA7VC__GCQCQCQ__000000ID5100________2.3s_S:0%_E:0.0%____

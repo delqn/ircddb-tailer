@@ -3,7 +3,7 @@ package parser
 import scala.util.matching.Regex
 
 class Message(msg: String) {
-  // example: #317470:20151223192301N0DEC___WW6BAY_B0WW6BAY_G/WW6BAYB000000D___01________
+  // example: 317470:20151223192301N0DEC___WW6BAY_B0WW6BAY_G/WW6BAYB000000D___01________
 
   var _rowID: Int = 1
   var _when: Long = 0
@@ -57,20 +57,37 @@ class Message(msg: String) {
 
   override def toString: String = {
     s"""{
-      |"rowID":${_rowID},
-      |"when":${_when},
-      |"myCall":"${_myCall}",
-      |"rpt1":"${_rpt1}",
-      |"qsoStarted":${_qsoStarted},
-      |"rpt2":"${_rpt2}",
-      |"urCall":"${_urCall}",
-      |"flags":"${_flags}",
-      |"myRadio":"${_myRadio}",
-      |"dest":"${_dest}",
-      |"txStats":"${_txStats}",
-      |"uniqueKey":"${_uniqueKey}",
-      |}""".stripMargin
+        |"rowID":${_rowID},
+        |"when":${_when},
+        |"myCall":"${_myCall}",
+        |"rpt1":"${_rpt1}",
+        |"qsoStarted":${_qsoStarted},
+        |"rpt2":"${_rpt2}",
+        |"urCall":"${_urCall}",
+        |"flags":"${_flags}",
+        |"myRadio":"${_myRadio}",
+        |"dest":"${_dest}",
+        |"txStats":"${_txStats}",
+        |"uniqueKey":"${_uniqueKey}",
+        |}""".stripMargin
   }
+
+  def toMap: Map[String, String] = Map(
+    //TODO(delyan): shoudl be Map[String, Any]
+    "rowID" -> _rowID.toString,
+    "when" -> _when.toString,
+    "myCall" -> _myCall,
+    "rpt1" -> _rpt1,
+    "qsoStarted" -> _qsoStarted.toString,
+    "rpt2" -> _rpt2,
+    "urCall" -> _urCall,
+    "flags" -> _flags,
+    "myRadio" -> _myRadio,
+    "dest" -> _dest,
+    "txStats" -> _txStats,
+    "uniqueKey" -> _uniqueKey
+  )
+
 }
 
 object MessageParser {
