@@ -1,7 +1,7 @@
 package parser
 
 import java.sql.Timestamp
-import java.util.{Calendar, Date}
+import java.util.Date
 
 import utils.Utils.{parseDate, sha256}
 

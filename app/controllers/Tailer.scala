@@ -2,23 +2,21 @@ package controllers
 
 import javax.inject.Inject
 
-import org.squeryl.{Session, SessionFactory}
 import parser.{Message, MessageParser}
 import play.api.Logger
 import play.api.db.Database
-import play.api.http.{ContentTypeOf, ContentTypes}
-import play.api.libs.ws.{WSClient, WSResponse}
-import play.api.mvc.{Action, Codec, Controller}
+import play.api.http.ContentTypes
+import play.api.libs.ws.WSClient
+import play.api.mvc.{Action, Controller}
 import play.api.libs.json._
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import utils.Consts.BASE_URL
 
 ///@Singleton
 class Tailer @Inject() (ws: WSClient, db: Database) extends Controller {
-
-  val BASE_URL = "http://live2.ircddb.net:8080/jj3.yaws"
 
   def index = Action.async {
     implicit request =>
