@@ -1,12 +1,15 @@
 package parser
 
+import java.security.MessageDigest
+import java.util.{Calendar, Date}
+
 import scala.util.matching.Regex
 
 class Message(msg: String) {
   // example: 317470:20151223192301N0DEC___WW6BAY_B0WW6BAY_G/WW6BAYB000000D___01________
 
   var _rowID: Int = 1
-  var _when: Long = 0
+  var _when: Date = Calendar.getInstance().getTime
   var _myCall: String = ""
   var _rpt1: String = ""
   var _qsoStarted: Boolean = false
@@ -20,8 +23,21 @@ class Message(msg: String) {
 
   def cleanUp(something: String): String = "[_]+".r.replaceAllIn(something, " ").trim
 
+  def sha256(s: String): String =
+    MessageDigest
+      .getInstance("SHA-256")
+      .digest(s.getBytes("UTF-8"))
+      .map("%02x".format(_))
+      .mkString
+
+  def parseDate(v: String): Date = {
+    // example: 20151223192301
+    val format = new java.text.SimpleDateFormat("yyyyMMddHHmmss")
+    format.parse(v)
+  }
+
   def rowID(v: String): Message = { _rowID = v.toInt; this }
-  def when(v: String): Message = { _when = v.toLong; this }
+  def when(v: String): Message = { _when = parseDate(v); this }
   def myCall(v: String): Message = { _myCall = cleanUp(v); this }
   def rpt1(v: String): Message = { _rpt1 = cleanUp(v); this }
   def qsoStarted(v: String): Message = { _qsoStarted = v == "0"; this }
@@ -31,7 +47,7 @@ class Message(msg: String) {
   def myRadio(v: String): Message = { _myRadio = cleanUp(v); this }
   def dest(v: String): Message = { _dest = cleanUp(v); this }
   def txStats(v: String): Message = { _txStats = cleanUp(v); this }
-  def uniqueKey(v: String): Message = { _uniqueKey = s"${v.slice(0, 16)}1${v.slice(17, v.length)}"; this }
+  def uniqueKey(v: String): Message = { _uniqueKey = v; this }
 
   private def extract(regexString: String) =
     regexString.r.findFirstMatchIn(msg) match {
@@ -51,7 +67,8 @@ class Message(msg: String) {
     myRadio(extract("""^\d*:.{53}(.{4})"""))
     dest(extract("""^\d*:.{59}(.{8})"""))
     txStats(extract("""^\d*:.{67}(.{20})"""))
-    uniqueKey(extract("""^\d*:\d{14}(.{33})"""))
+    //uniqueKey(extract("""^\d*:\d{14}(.{33})"""))
+    uniqueKey(sha256(msg))
     this
   }
 
@@ -73,7 +90,7 @@ class Message(msg: String) {
   }
 
   def toMap: Map[String, String] = Map(
-    //TODO(delyan): shoudl be Map[String, Any]
+    //TODO(delyan): should be Map[String, Any]
     "rowID" -> _rowID.toString,
     "when" -> _when.toString,
     "myCall" -> _myCall,
@@ -88,15 +105,30 @@ class Message(msg: String) {
     "uniqueKey" -> _uniqueKey
   )
 
+  def commitToDB(): Message = {
+    val dbMessage = new persistence.Message(
+      _uniqueKey,
+      _rowID,
+      _when,
+      _myCall,
+      _rpt1,
+      _qsoStarted,
+      _rpt2,
+      _urCall,
+      _flags,
+      _myRadio,
+      _dest,
+      _txStats
+    )
+    persistence.Message.create(dbMessage)
+    this
+  }
+
 }
 
 object MessageParser {
 
   val MESSAGE_LENGTH = 74
-
-  def pieceParser(regex: String, fn: (String) => Any): (Regex, (String) => Any) = (regex.r, fn)
-
-  def cleanUpUnderscores(msg: String): String = msg.replace('_', ' ')
 
   def isInvalid(msg: String, nextPageId: String): Boolean = {
     val Prefix = s"^$nextPageId:".r
@@ -112,5 +144,5 @@ object MessageParser {
   }
 
   // TODO(delyan): this here needs less java, more scala
-  def parse(msg: String) = new Message(msg).apply()
+  def parse(msg: String): Message = new Message(msg).apply()
 }
