@@ -1,5 +1,6 @@
 package parser
 
+import java.sql.Timestamp
 import java.util.{Calendar, Date}
 
 import utils.Utils.{parseDate, sha256}
@@ -7,8 +8,10 @@ import utils.Utils.{parseDate, sha256}
 class Message(msg: String) {
   // example: 317470:20151223192301N0DEC___WW6BAY_B0WW6BAY_G/WW6BAYB000000D___01________
 
+  val nowDate = new Date().getTime
+
   var _rowID: Int = 1
-  var _when: Date = Calendar.getInstance().getTime
+  var _when: Timestamp = new Timestamp(nowDate)
   var _myCall: String = ""
   var _rpt1: String = ""
   var _qsoStarted: Boolean = false

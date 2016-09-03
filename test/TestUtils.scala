@@ -5,7 +5,7 @@ class TestUtils extends Specification {
 
   "Utils" should {
     "parse dates" in {
-      parseDate("20151223192301").toString must equalTo("Wed Dec 23 19:23:01 PST 2015")
+      parseDate("20151223192301").toString must equalTo("2015-12-23 19:23:01.0")
     }
 
     "sha256" in {

@@ -1,12 +1,14 @@
 package persistence
 
+import java.sql.Timestamp
+
 import org.squeryl.PrimitiveTypeMode._
 import org.squeryl._
 
 case class Message(
                     id: String, // by convention this is the PK
                     rowid: Int,
-                    ts: DateType,
+                    ts: Timestamp,
                     mycall: String,
                     rpt1: String,
                     qsostarted: Boolean,
