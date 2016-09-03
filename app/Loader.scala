@@ -13,7 +13,12 @@ object Loader extends App {
   SessionFactory.concreteFactory = Some(() =>
     Session.create(
       java.sql.DriverManager.getConnection(dbURL),
-      new PostgreSqlAdapter))
+      new PostgreSqlAdapter
+    )
+  )
+
+  println(persistence.Message.lastMessage.toString)
+
   val sinceID = 0
   val url = s"$BASE_URL?p=$sinceID"
   val resp = Source.fromURL(url)("utf-8").mkString

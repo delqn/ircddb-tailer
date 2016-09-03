@@ -49,6 +49,9 @@ object Message {
   }
   */
 
+  def lastMessage: Message = from(Database.messagesTable) {
+    message => select(message).orderBy(message.ts desc)
+  }.single
   def allQ: Query[Message] = from(Database.messagesTable) { message => select(message) }
   def findAll(): List[Message] = inTransaction { allQ.toList }
   def create(message: Message) = try {
