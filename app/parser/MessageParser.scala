@@ -1,9 +1,8 @@
 package parser
 
-import java.security.MessageDigest
 import java.util.{Calendar, Date}
 
-import scala.util.matching.Regex
+import utils.Utils.{parseDate, sha256}
 
 class Message(msg: String) {
   // example: 317470:20151223192301N0DEC___WW6BAY_B0WW6BAY_G/WW6BAYB000000D___01________
@@ -22,19 +21,6 @@ class Message(msg: String) {
   var _uniqueKey: String = ""
 
   def cleanUp(something: String): String = "[_]+".r.replaceAllIn(something, " ").trim
-
-  def sha256(s: String): String =
-    MessageDigest
-      .getInstance("SHA-256")
-      .digest(s.getBytes("UTF-8"))
-      .map("%02x".format(_))
-      .mkString
-
-  def parseDate(v: String): Date = {
-    // example: 20151223192301
-    val format = new java.text.SimpleDateFormat("yyyyMMddHHmmss")
-    format.parse(v)
-  }
 
   def rowID(v: String): Message = { _rowID = v.toInt; this }
   def when(v: String): Message = { _when = parseDate(v); this }
