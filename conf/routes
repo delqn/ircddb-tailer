@@ -1,1 +1,2 @@
-GET  /  controllers.Tailer.index()
+GET    /              controllers.Tailer.index()
+GET    /dump          controllers.Tailer.status()
