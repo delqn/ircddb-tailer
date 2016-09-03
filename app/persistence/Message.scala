@@ -4,6 +4,8 @@ import java.sql.Timestamp
 
 import org.squeryl.PrimitiveTypeMode._
 import org.squeryl._
+import org.postgresql.util.PSQLException
+import play.api.Logger
 
 case class Message(
                     id: String, // by convention this is the PK
@@ -49,6 +51,11 @@ object Message {
 
   def allQ: Query[Message] = from(Database.messagesTable) { message => select(message) }
   def findAll(): List[Message] = inTransaction { allQ.toList }
-  def create(message: Message) = inTransaction { Database.messagesTable.insert(message) }
+  def create(message: Message) = try {
+    inTransaction { Database.messagesTable.insert(message) }
+  } catch {
+    case e: PSQLException => Logger.warn(s"Message with id=${message.id} already exists.")
+    case e => Logger.error(s"PSQL Error --> $e")
+  }
 
 }

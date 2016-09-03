@@ -61,7 +61,7 @@ class Message(msg: String) {
     this
   }
 
-  override def toString: String = {
+  override def toString: String =
     s"""{
         |"rowID":${_rowID},
         |"when":${_when},
@@ -76,7 +76,6 @@ class Message(msg: String) {
         |"txStats":"${_txStats}",
         |"uniqueKey":"${_uniqueKey}",
         |}""".stripMargin
-  }
 
   def toMap: Map[String, String] = Map(
     //TODO(delyan): should be Map[String, Any]
