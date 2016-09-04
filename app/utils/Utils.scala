@@ -2,7 +2,7 @@ package utils
 
 import java.security.MessageDigest
 import java.sql.Timestamp
-import java.util.Date
+
 
 object Utils {
 
@@ -13,7 +13,7 @@ object Utils {
       .map("%02x".format(_))
       .mkString
 
-  def parseDate(v: String): Timestamp = {
+  def stringDateToTimestamp(v: String): Timestamp = {
     // example: 20151223192301
     val format = new java.text.SimpleDateFormat("yyyyMMddHHmmss")
     new Timestamp(format.parse(v).getTime)

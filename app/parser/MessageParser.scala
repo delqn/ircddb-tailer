@@ -3,9 +3,9 @@ package parser
 import java.sql.Timestamp
 import java.util.Date
 
-import utils.Utils.{parseDate, sha256}
+import utils.Utils.{stringDateToTimestamp, sha256}
 
-class Message(msg: String) {
+class Message() {
   // example: 317470:20151223192301N0DEC___WW6BAY_B0WW6BAY_G/WW6BAYB000000D___01________
 
   val nowDate = new Date().getTime
@@ -26,7 +26,7 @@ class Message(msg: String) {
   def cleanUp(something: String): String = "[_]+".r.replaceAllIn(something, " ").trim
 
   def rowID(v: String): Message = { _rowID = v.toInt; this }
-  def when(v: String): Message = { _when = parseDate(v); this }
+  def when(v: String): Message = { _when = stringDateToTimestamp(v); this }
   def myCall(v: String): Message = { _myCall = cleanUp(v); this }
   def rpt1(v: String): Message = { _rpt1 = cleanUp(v); this }
   def qsoStarted(v: String): Message = { _qsoStarted = v == "0"; this }
@@ -38,33 +38,37 @@ class Message(msg: String) {
   def txStats(v: String): Message = { _txStats = cleanUp(v); this }
   def uniqueKey(v: String): Message = { _uniqueKey = v; this }
 
-  private def extract(regexString: String) =
+  private def extract(regexString: String, msg: String) =
     regexString.r.findFirstMatchIn(msg) match {
       case Some(theMatch) => theMatch.group(1)
       case _ => ""
     }
 
-  def apply(): Message = {
-    rowID(extract("""^(\d*):"""))
-    when(extract(""":(\d{14})"""))
-    myCall(extract("""^\d*:\d{14}(.{8})"""))
-    rpt1(extract("""^\d*:.{22}(.{8})"""))
-    qsoStarted(extract("""^\d*:.{30}(\d)"""))
-    rpt2(extract("""^\d*:.{31}(.{8})"""))
-    urCall(extract("""^\d*:.{39}(.{8})"""))
-    flags(extract("""^\d*:.{47}(.{6})"""))
-    myRadio(extract("""^\d*:.{53}(.{4})"""))
-    dest(extract("""^\d*:.{59}(.{8})"""))
-    txStats(extract("""^\d*:.{67}(.{20})"""))
-    //uniqueKey(extract("""^\d*:\d{14}(.{33})"""))
-    uniqueKey(sha256(msg))
+  def makeKey(msg: String): String = {
+    val key = extract("""^\d*:\d{14}(.{33})""", msg)
+    s"${key.slice(0, 16)}1${key.slice(17, key.length)}"
+  }
+
+  def apply(msg: String): Message = {
+    rowID(extract("""^(\d*):""", msg))
+    when(extract(""":(\d{14})""", msg))
+    myCall(extract("""^\d*:\d{14}(.{8})""", msg))
+    rpt1(extract("""^\d*:.{22}(.{8})""", msg))
+    qsoStarted(extract("""^\d*:.{30}(\d)""", msg))
+    rpt2(extract("""^\d*:.{31}(.{8})""", msg))
+    urCall(extract("""^\d*:.{39}(.{8})""", msg))
+    flags(extract("""^\d*:.{47}(.{6})""", msg))
+    myRadio(extract("""^\d*:.{53}(.{4})""", msg))
+    dest(extract("""^\d*:.{59}(.{8})""", msg))
+    txStats(extract("""^\d*:.{67}(.{20})""", msg))
+    uniqueKey(makeKey(msg))
     this
   }
 
   override def toString: String =
     s"""{
         |"rowID":${_rowID},
-        |"when":${_when},
+        |"when":"${_when}",
         |"myCall":"${_myCall}",
         |"rpt1":"${_rpt1}",
         |"qsoStarted":${_qsoStarted},
@@ -131,6 +135,5 @@ object MessageParser {
     messages.split("\n").filter(_.length > 1)
   }
 
-  // TODO(delyan): this here needs less java, more scala
-  def parse(msg: String): Message = new Message(msg).apply()
+  def parse(msg: String): Message = new Message().apply(msg)
 }

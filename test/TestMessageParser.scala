@@ -1,5 +1,7 @@
-import org.specs2.mutable._
+import java.sql.Timestamp
+import java.util.Date
 
+import org.specs2.mutable._
 import parser.MessageParser
 
 class MessageParserTest extends Specification {
@@ -28,7 +30,7 @@ class MessageParserTest extends Specification {
       val lines = MessageParser.getLines(TestData.msg)
       val m = MessageParser.parse(lines.head)
       m._rowID must equalTo(553379)
-      m._when must equalTo(20160902175103L)
+      m._when.toString must equalTo("2016-09-02 17:51:03.0")
       m._myCall must equalTo("N0DEC")
       m._qsoStarted must equalTo(true)
       m._dest must equalTo("destx")
@@ -38,7 +40,7 @@ class MessageParserTest extends Specification {
       val lines = MessageParser.getLines(TestData.msg)
       val m = MessageParser.parse(lines(1))
       m._rowID must equalTo(553380)
-      m._when must equalTo(20160902175105L)
+      m._when.toString must equalTo("2016-09-02 17:51:05.0")
       m._myCall must equalTo("IZ6FGP")
       m._rpt1 must equalTo("IR6UCI B")
       m._qsoStarted must equalTo(false)
@@ -51,23 +53,32 @@ class MessageParserTest extends Specification {
       m._uniqueKey must equalTo("IZ6FGP__IR6UCI_B1IR6UCI_GCQCQCQ__")
     }
 
+    "make unique key" in {
+      val lines = MessageParser.getLines(TestData.msg)
+      val m = MessageParser.parse(lines(1))
+      val messages = "317470:20151223192301N0DEC___WW6BAY_B0WW6BAY_G/WW6BAYB000000D___01________"
+      val key = m.makeKey(messages)
+      key must equalTo("N0DEC___WW6BAY_B1WW6BAY_G/WW6BAYB")
+    }
+
     "toString constructs correct JSON representation" in {
-        val lines = MessageParser.getLines(TestData.msg)
-        val m = MessageParser.parse(lines(1))
-        m.toString must equalTo("""{
-                                  |"rowID":553380,
-                                  |"when":20160902175105,
-                                  |"myCall":"IZ6FGP",
-                                  |"rpt1":"IR6UCI B",
-                                  |"qsoStarted":false,
-                                  |"rpt2":"IR6UCI G",
-                                  |"urCall":"CQCQCQ",
-                                  |"flags":"000000",
-                                  |"myRadio":"AUTO",
-                                  |"dest":"",
-                                  |"txStats":"0.3s S:53% E:0.0%",
-                                  |"uniqueKey":"IZ6FGP__IR6UCI_B1IR6UCI_GCQCQCQ__",
-                                  |}""".stripMargin)
+      val lines = MessageParser.getLines(TestData.msg)
+      val m = MessageParser.parse(lines(1))
+      // TODO(delyan): convert when to a UNIX timestamp
+      m.toString must equalTo("""{
+                                |"rowID":553380,
+                                |"when":"2016-09-02 17:51:05.0",
+                                |"myCall":"IZ6FGP",
+                                |"rpt1":"IR6UCI B",
+                                |"qsoStarted":false,
+                                |"rpt2":"IR6UCI G",
+                                |"urCall":"CQCQCQ",
+                                |"flags":"000000",
+                                |"myRadio":"AUTO",
+                                |"dest":"",
+                                |"txStats":"0.3s S:53% E:0.0%",
+                                |"uniqueKey":"IZ6FGP__IR6UCI_B1IR6UCI_GCQCQCQ__",
+                                |}""".stripMargin)
     }
   }
 }

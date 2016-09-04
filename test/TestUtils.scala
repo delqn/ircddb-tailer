@@ -1,11 +1,11 @@
 import org.specs2.mutable._
-import utils.Utils.{parseDate, sha256}
+import utils.Utils.{stringDateToTimestamp, sha256}
 
 class TestUtils extends Specification {
 
   "Utils" should {
     "parse dates" in {
-      parseDate("20151223192301").toString must equalTo("2015-12-23 19:23:01.0")
+      stringDateToTimestamp("20151223192301").toString must equalTo("2015-12-23 19:23:01.0")
     }
 
     "sha256" in {
