@@ -1,0 +1,6 @@
+DROP TABLE IF EXISTS polls;
+CREATE TABLE polls (
+       id VARCHAR(256) PRIMARY KEY,
+       ts TIMESTAMP,
+       url VARCHAR(1024)
+);
