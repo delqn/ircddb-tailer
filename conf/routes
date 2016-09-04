@@ -1,3 +1,4 @@
 GET    /              controllers.Tailer.index()
+GET    /poll          controllers.Tailer.poll()
 GET    /dump          controllers.Tailer.dump()
 GET    /status        controllers.Tailer.status()

@@ -17,7 +17,9 @@ import utils.Consts.BASE_URL
 
 class Tailer @Inject() (ws: WSClient, db: Database) extends Controller {
 
-  def index = Action.async {
+  def index = Action { Ok("hi") }
+
+  def poll = Action.async {
     implicit request =>
       val sinceID = persistence.Message.lastMessage.rowid
       val url = s"$BASE_URL?p=$sinceID"
