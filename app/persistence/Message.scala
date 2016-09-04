@@ -49,9 +49,13 @@ object Message {
   }
   */
 
-  def lastMessage: Message = from(Database.messagesTable) {
-    message => select(message).orderBy(message.ts desc)
-  }.page(0, 1).head
+  def lastMessage: Message =
+    inTransaction {
+      from(Database.messagesTable) {
+        message => select(message).orderBy(message.ts desc)
+      }.page(0, 1).head
+    }
+
   def allQ: Query[Message] = from(Database.messagesTable) { message => select(message) }
 
   def findAll: List[Message] = inTransaction { allQ.toList }
