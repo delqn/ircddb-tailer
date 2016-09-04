@@ -15,7 +15,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import utils.Consts.BASE_URL
 
-///@Singleton
 class Tailer @Inject() (ws: WSClient, db: Database) extends Controller {
 
   def index = Action.async {
@@ -32,10 +31,15 @@ class Tailer @Inject() (ws: WSClient, db: Database) extends Controller {
       }
   }
 
-  def status = Action {
-    val messages = persistence.Message.findAll()
+  def dump = Action {
+    val messages = persistence.Message.findAll
     val json = Json.toJson(messages.map(_.toMap))
     Ok(json)
   }
 
+  def status = Action {
+    val status = persistence.Message.getStatus
+    val json = Json.toJson(status)
+    Ok(json)
+  }
 }

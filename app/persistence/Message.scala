@@ -53,7 +53,16 @@ object Message {
     message => select(message).orderBy(message.ts desc)
   }.page(0, 1).head
   def allQ: Query[Message] = from(Database.messagesTable) { message => select(message) }
-  def findAll(): List[Message] = inTransaction { allQ.toList }
+
+  def findAll: List[Message] = inTransaction { allQ.toList }
+
+  def getStatus: Map[String, String] = Map("count" -> inTransaction {
+    from(Database.messagesTable) {
+      message => compute(countDistinct(message.id))
+    }.single.measures.toString
+  }
+  )
+
   def create(message: Message) = try {
     inTransaction { Database.messagesTable.insert(message) }
   } catch {
