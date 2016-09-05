@@ -22,6 +22,22 @@ case class Message(
                     txstats: String
                   ) extends KeyedEntity[String] {
 
+  override def toString: String =
+    s"""{
+        |"rowID":$rowid,
+        |"when":"$ts",
+        |"myCall":"$mycall",
+        |"rpt1":"$rpt1",
+        |"qsoStarted":$qsostarted,
+        |"rpt2":"$rpt2",
+        |"urCall":"$urcall",
+        |"flags":"$flags",
+        |"myRadio":"$myradio",
+        |"dest":"$dest",
+        |"txStats":"$txstats",
+        |"uniqueKey":"$id",
+        |}""".stripMargin
+
   def toMap: Map[String, String] = Map(
     "id" -> id,
     "rowID" -> rowid.toString,
@@ -57,7 +73,7 @@ object Message {
   }
   )
 
-  def create(message: Message) = {
+  def create(message: Message): Message = {
     try {
       inTransaction {
         // TODO(delyan): can we get UPSERT / insertOrUpdate to work here instead?
@@ -65,8 +81,10 @@ object Message {
         Database.messagesTable.insert(message)
       }
     } catch {
-      case e: PSQLException => Logger.warn(s"Message with id=${message.id} already exists. Trying an update instead.")
-      case e: Throwable => Logger.error(s"PSQL Error --> $e")
+      case e: PSQLException => Logger.warn(s"Message with id=${message.id} already exists. Trying an update instead."); message
+      case e: Throwable => Logger.error(s"PSQL Error --> $e"); message
+    } finally {
+      message
     }
   }
 

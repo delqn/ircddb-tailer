@@ -25,7 +25,11 @@ object Loader extends App {
   val sinceID = persistence.Message.lastMessage.rowid
   val url = s"$BASE_URL?p=$sinceID"
   val resp = Source.fromURL(url)("utf-8").mkString
-  val messages = MessageParser.getLines(resp).map(MessageParser.parse(_).commitToDB())
+  val messages = MessageParser
+    .getLines(resp)
+    .map(MessageParser.parse)
+    .map(persistence.Message.create)
+
   val json = Json.toJson(messages.map(_.toMap).toArray)
   Logger.debug(s"[${this.getClass.getName}] Fetched $json")
   persistence.Poll.create(url)

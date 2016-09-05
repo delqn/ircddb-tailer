@@ -1,6 +1,3 @@
-import java.sql.Timestamp
-import java.util.Date
-
 import org.specs2.mutable._
 import parser.MessageParser
 
@@ -29,35 +26,35 @@ class MessageParserTest extends Specification {
     "parse message with a dest field" in {
       val lines = MessageParser.getLines(TestData.msg)
       val m = MessageParser.parse(lines.head)
-      m._rowID must equalTo(553379)
-      m._when.toString must equalTo("2016-09-02 17:51:03.0")
-      m._myCall must equalTo("N0DEC")
-      m._qsoStarted must equalTo(true)
-      m._dest must equalTo("destx")
+      m.rowid must equalTo(553379)
+      m.ts.toString must equalTo("2016-09-02 17:51:03.0")
+      m.mycall must equalTo("N0DEC")
+      m.qsostarted must equalTo(true)
+      m.dest must equalTo("destx")
     }
 
     "parse message" in {
       val lines = MessageParser.getLines(TestData.msg)
       val m = MessageParser.parse(lines(1))
-      m._rowID must equalTo(553380)
-      m._when.toString must equalTo("2016-09-02 17:51:05.0")
-      m._myCall must equalTo("IZ6FGP")
-      m._rpt1 must equalTo("IR6UCI B")
-      m._qsoStarted must equalTo(false)
-      m._rpt2 must equalTo("IR6UCI G")
-      m._urCall must equalTo("CQCQCQ")
-      m._flags must equalTo("000000")
-      m._myRadio must equalTo("AUTO")
-      m._dest must equalTo("")
-      m._txStats must equalTo("0.3s S:53% E:0.0%")
-      m._uniqueKey must equalTo("IZ6FGP__IR6UCI_B1IR6UCI_GCQCQCQ__")
+      m.rowid must equalTo(553380)
+      m.ts.toString must equalTo("2016-09-02 17:51:05.0")
+      m.mycall must equalTo("IZ6FGP")
+      m.rpt1 must equalTo("IR6UCI B")
+      m.qsostarted must equalTo(false)
+      m.rpt2 must equalTo("IR6UCI G")
+      m.urcall must equalTo("CQCQCQ")
+      m.flags must equalTo("000000")
+      m.myradio must equalTo("AUTO")
+      m.dest must equalTo("")
+      m.txstats must equalTo("0.3s S:53% E:0.0%")
+      m.id must equalTo("IZ6FGP__IR6UCI_B1IR6UCI_GCQCQCQ__")
     }
 
     "make unique key" in {
       val lines = MessageParser.getLines(TestData.msg)
       val m = MessageParser.parse(lines(1))
       val messages = "317470:20151223192301N0DEC___WW6BAY_B0WW6BAY_G/WW6BAYB000000D___01________"
-      val key = m.makeKey(messages)
+      val key = MessageParser.makeKey(messages)
       key must equalTo("N0DEC___WW6BAY_B1WW6BAY_G/WW6BAYB")
     }
 
@@ -99,5 +96,3 @@ object TestData {
             |
             |""".stripMargin
   }
-
-
