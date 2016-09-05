@@ -42,7 +42,7 @@ class Tailer @Inject() (ws: WSClient, db: Database) extends Controller {
     Ok(json)
   }
 
-  def status = Action {
+  def stats = Action {
     val status = persistence.Message.getStatus
     val json = Json.toJson(status)
     Ok(json)

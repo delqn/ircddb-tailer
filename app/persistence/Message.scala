@@ -8,7 +8,7 @@ import org.postgresql.util.PSQLException
 import play.api.Logger
 
 case class Message(
-                    id: String, // by convention this is the PK
+                    id: String,
                     rowid: Int,
                     ts: Timestamp,
                     mycall: String,
@@ -66,11 +66,17 @@ object Message {
 
   def findAll: List[Message] = inTransaction { allQ.toList }
 
-  def getStatus: Map[String, String] = Map("count" -> inTransaction {
-    from(Database.messagesTable) {
-      message => compute(countDistinct(message.id))
-    }.single.measures.toString
-  }
+  def getStatus: Map[String, String] = Map(
+    "messages-count" -> inTransaction {
+      from(Database.messagesTable) {
+        message => compute(countDistinct(message.id))
+      }.single.measures.toString
+    },
+    "polls-count" ->  inTransaction {
+      from(Database.pollsTable) {
+        poll => compute(countDistinct(poll.id))
+      }.single.measures.toString
+    }
   )
 
   def create(message: Message): Message = {
