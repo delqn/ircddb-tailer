@@ -87,11 +87,10 @@ object Message {
         Database.messagesTable.insert(message)
       }
     } catch {
-      case e: PSQLException => Logger.warn(s"Message with id=${message.id} already exists. Trying an update instead."); message
-      case e: Throwable => Logger.error(s"PSQL Error --> $e"); message
-    } finally {
-      message
+      case e: PSQLException => Logger.warn(s"Message with id=${message.id} already exists. Trying an update instead.")
+      case e: Throwable => Logger.error(s"PSQL Error --> $e")
     }
+    message
   }
 
 }
