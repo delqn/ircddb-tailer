@@ -28,4 +28,5 @@ object Loader extends App {
   val messages = MessageParser.getLines(resp).map(MessageParser.parse(_).commitToDB())
   val json = Json.toJson(messages.map(_.toMap).toArray)
   Logger.debug(s"[${this.getClass.getName}] Fetched $json")
+  persistence.Poll.create(url)
 }

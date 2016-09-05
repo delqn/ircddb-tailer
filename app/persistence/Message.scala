@@ -39,16 +39,6 @@ case class Message(
 }
 
 object Message {
-
-  /*
-  // returns existing user by email address, or null if not exists
-  def apply(email: String): Message = {
-    inTransaction {
-      // findByEmailQ(email).headOption.getOrElse(null)
-    }
-  }
-  */
-
   def lastMessage: Message =
     inTransaction {
       from(Database.messagesTable) {
@@ -67,11 +57,17 @@ object Message {
   }
   )
 
-  def create(message: Message) = try {
-    inTransaction { Database.messagesTable.insert(message) }
-  } catch {
-    case e: PSQLException => Logger.warn(s"Message with id=${message.id} already exists.")
-    case e: Throwable => Logger.error(s"PSQL Error --> $e")
+  def create(message: Message) = {
+    try {
+      inTransaction {
+        // TODO(delyan): can we get UPSERT / insertOrUpdate to work here instead?
+        Database.messagesTable.deleteWhere(msg => msg.id === message.id)
+        Database.messagesTable.insert(message)
+      }
+    } catch {
+      case e: PSQLException => Logger.warn(s"Message with id=${message.id} already exists. Trying an update instead.")
+      case e: Throwable => Logger.error(s"PSQL Error --> $e")
+    }
   }
 
 }

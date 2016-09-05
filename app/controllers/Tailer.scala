@@ -28,6 +28,7 @@ class Tailer @Inject() (ws: WSClient, db: Database) extends Controller {
         resp =>
           val messages = MessageParser.getLines(resp.body).map(MessageParser.parse(_).commitToDB())
           val json = Json.toJson(messages.map(_.toMap).toArray)
+          persistence.Poll.create(url)
           Logger.debug(s"Fetched $json")
           Ok(json).as(ContentTypes.JSON)
       }
