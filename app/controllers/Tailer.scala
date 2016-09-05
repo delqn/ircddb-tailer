@@ -20,7 +20,11 @@ class Tailer @Inject() (ws: WSClient, db: Database) extends Controller {
 
   def poll = Action.async {
     implicit request =>
-      val sinceID = persistence.Message.lastMessage.rowid
+      val sinceID = try {
+        persistence.Message.lastMessage.rowid
+      } catch {
+        case e: Throwable => 0
+      }
       val url = s"$BASE_URL?p=$sinceID"
       ws.url(url).get().map {
         resp =>
