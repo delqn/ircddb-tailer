@@ -1,8 +1,8 @@
 package persistence
 
-import org.squeryl.Schema
+import org.squeryl.{Schema, Table}
 
 object Database extends Schema {
-  val messagesTable = table[Message]("messages")
-  val pollsTable = table[Poll]("polls")
+  val messagesTable: Table[Message] = table[Message]("messages")
+  val pollsTable: Table[Poll] = table[Poll]("polls")
 }

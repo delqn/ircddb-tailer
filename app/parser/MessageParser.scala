@@ -24,7 +24,7 @@ object MessageParser {
     messages.split("\n").filter(_.length > 1)
   }
 
-  def extract(regexString: String, msg: String) =
+  def extract(regexString: String, msg: String): String =
     regexString.r.findFirstMatchIn(msg) match {
       case Some(theMatch) => theMatch.group(1)
       case _ => ""
